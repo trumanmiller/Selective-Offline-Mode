@@ -1,17 +1,15 @@
 package jmeow.selectiveofflinemode;
 
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.minecraft.command.argument.TimeArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static net.minecraft.server.command.CommandManager.argument;
 
 public class SelectiveOfflineMode implements ModInitializer {
@@ -32,13 +30,28 @@ public class SelectiveOfflineMode implements ModInitializer {
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment)
 				-> dispatcher.register(CommandManager.literal("allowplayer")
 				.requires(source -> source.hasPermissionLevel(2))
-				.then(argument("player", StringArgumentType.greedyString())
+				.then(argument("player", StringArgumentType.word())
 				.executes(context -> {
 					final String playerName = StringArgumentType.getString(context, "player");
 					LOGGER.info("Allowing player " + playerName + " to join in the next 60 seconds");
 					NameExpiry.addName(playerName);
 					context.getSource().sendFeedback(() -> Text.literal("Gave player \"" + playerName + "\" permission to join in the next 60 seconds. They may continue to stay on the server after joining."), true);
 					return 1;
-				}))));
+				})
+                .then(argument("duration", TimeArgumentType.time(1))
+                        .executes(context -> {
+                            String playerName = StringArgumentType.getString(context, "player");
+                            int ticks = context.getArgument("duration", Integer.class);
+                            int seconds = ticks / 20;
+                            LOGGER.info("Allowing player " + playerName + " to join in the next " + seconds + " seconds");
+                            NameExpiry.addName(playerName, (long) seconds);
+                            context.getSource().sendFeedback(
+                                    () -> Text.literal("Gave player \"" + playerName + "\" permission to join for the next " + seconds + " seconds.  They may continue to stay on the server after joining."),
+                                    true
+                            );
+                            return 1;
+                        })
+                )
+                )));
 	}
 }
