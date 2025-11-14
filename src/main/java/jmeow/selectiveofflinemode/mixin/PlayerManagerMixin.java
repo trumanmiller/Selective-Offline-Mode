@@ -10,14 +10,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.net.SocketAddress;
-import java.util.Date;
 
 @Mixin(PlayerManager.class)
 public abstract class PlayerManagerMixin {
     @Inject(method = "checkCanJoin", at = @At(value = "RETURN"), cancellable = true)
     private void checkCanJoin(SocketAddress address, PlayerConfigEntry profile, CallbackInfoReturnable<Text> cir) {
 
-        if (NameExpiry.names.containsKey(profile.name()) && NameExpiry.names.get(profile.name()).after(new Date())) {
+        if (NameExpiry.isAllowed(profile.name())) {
             cir.setReturnValue(null);
         } else {
             cir.setReturnValue(cir.getReturnValue());
