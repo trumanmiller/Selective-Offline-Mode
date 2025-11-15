@@ -27,16 +27,18 @@ public class SelectiveOfflineMode implements ModInitializer {
                 .requires(source -> source.hasPermissionLevel(2))
                 .then(argument("player", StringArgumentType.word())
                         .executes(context -> {
-                            final String playerName = StringArgumentType.getString(context, "player");
+                            String playerName = StringArgumentType.getString(context, "player");
                             LOGGER.info("Allowing player {} to join in the next 60 seconds", playerName);
                             NameExpiry.addName(playerName, 60L);
                             context.getSource().sendFeedback(() -> Text.literal("Gave player \"" + playerName + "\" permission to join in the next 60 seconds. They may continue to stay on the server after joining."), true);
                             return 1;
                         })
-                        .then(argument("duration", RealTimeArgumentType.time())
+                        .then(argument("duration", StringArgumentType.word())
+                                .suggests(RealTimeArgument::getSuggestions)
                                 .executes(context -> {
                                     String playerName = StringArgumentType.getString(context, "player");
-                                    int seconds = context.getArgument("duration", Integer.class);
+                                    String duration = StringArgumentType.getString(context, "duration");
+                                    Long seconds = RealTimeArgument.parse(duration);
                                     LOGGER.info("Allowing player {} to join in the next {} seconds", playerName, seconds);
                                     NameExpiry.addName(playerName, (long) seconds);
                                     context.getSource().sendFeedback(
