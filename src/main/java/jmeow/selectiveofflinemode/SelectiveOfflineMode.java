@@ -40,7 +40,7 @@ public class SelectiveOfflineMode implements ModInitializer {
                                     String duration = StringArgumentType.getString(context, "duration");
                                     Long seconds = RealTimeArgument.parse(duration);
                                     LOGGER.info("Allowing player {} to join in the next {} seconds", playerName, seconds);
-                                    NameExpiry.addName(playerName, (long) seconds);
+                                    NameExpiry.addName(playerName, seconds);
                                     context.getSource().sendFeedback(
                                             () -> Text.literal("Gave player \"" + playerName + "\" permission to join for the next " + seconds + " seconds.  They may continue to stay on the server after joining."),
                                             true

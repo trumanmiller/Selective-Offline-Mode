@@ -31,6 +31,10 @@ public class SelectiveOfflineModeConfig {
             .create();
 
 
+    /**
+     *
+     * @return HashMap of names to dates read from CONFIG_PATH
+     */
     public static HashMap<String, Date> readConfig() {
         if (!Files.exists(CONFIG_PATH)) {
             return new HashMap<>();
@@ -50,10 +54,15 @@ public class SelectiveOfflineModeConfig {
         }
     }
 
+    /**
+     * prunes outdated names from hashmap and saves to config, creating parents if needed
+     *
+     * @param map HashMap of names to dates to persist to config file
+     */
 
     public static void saveConfig(HashMap<String, Date> map) {
 
-        // prune any outdated names before writing to config file
+
         Date currentTime = new Date();
         HashMap<String, Date> prunedNames = new HashMap<>();
 
